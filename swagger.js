@@ -1,5 +1,10 @@
+require("dotenv").config();
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+
+// 🌍 Variables de entorno con valores por defecto
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8082";
+const API_BASE_PATH = process.env.API_BASE_PATH || "/api";
 
 const options = {
   definition: {
@@ -7,11 +12,13 @@ const options = {
     info: {
       title: "API Farmacia - UMG",
       version: "1.0.0",
-      description: "Documentación de la API de la aplicación Farmacia con clientes, productos, ventas y más.",
+      description:
+        "Documentación de la API de la aplicación Farmacia con clientes, productos, ventas y más.",
     },
     servers: [
       {
-        url: "http://localhost:8082/api", // cambia el puerto si usas otro
+        url: `${BACKEND_URL}${API_BASE_PATH}`, // ✅ Usa variables de entorno
+        description: process.env.NODE_ENV === "production" ? "Servidor de Producción" : "Servidor Local",
       },
     ],
   },
@@ -22,7 +29,7 @@ const swaggerSpec = swaggerJsdoc(options);
 
 function swaggerDocs(app) {
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-  console.log("Swagger disponible en http://localhost:8082/api-docs");
+  console.log(`📘 Swagger disponible en ${BACKEND_URL}/api-docs`);
 }
 
 module.exports = swaggerDocs;

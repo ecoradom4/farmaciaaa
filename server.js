@@ -15,17 +15,31 @@ const allowedOrigins = process.env.CORS_ORIGINS
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // Permite Postman y cURL
+    if (!origin) return callback(null, true); // Permite Postman, Swagger y cURL
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error(`❌ Origen no permitido por CORS: ${origin}`));
+      console.warn(`❌ Origen no permitido por CORS: ${origin}`);
+      callback(new Error("Not allowed by CORS"));
     }
   },
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // ✅ Métodos permitidos
+  allowedHeaders: [
+    "Origin",
+    "X-Requested-With",
+    "Content-Type",
+    "Accept",
+    "Authorization"
+  ], // ✅ Headers permitidos
+  optionsSuccessStatus: 200, // ✅ Evita errores con navegadores antiguos
 };
 
+// ✅ Middleware CORS (antes de las rutas)
 app.use(cors(corsOptions));
+
+// ✅ Permitir preflight (OPTIONS) para todas las rutas
+app.options("*", cors(corsOptions));
 
 // ⚠️ Webhook de Stripe debe ir ANTES del bodyParser.json()
 app.post(
